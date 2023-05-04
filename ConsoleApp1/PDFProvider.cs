@@ -6,17 +6,9 @@ using QuestPDF.Infrastructure;
 
 namespace ConsoleApp1;
 
-internal class PDFProvider<T> where T : TplusCustomer, IDisposable
+internal class PDFProvider
 {
-    class test
-    {
-        public int MyProperty { get; set; }
-        public int MyValue { get; set; }
-
-        public int MyProperty1 { get; set; }
-        public int MyProperty2 { get; set; }
-    }
-    public void SavePdf(PdfConfigurations pdfConfigurations, List<T> data,Stream stream)
+    public static void SavePdf(PdfConfigurations pdfConfigurations, List<TplusCustomer> data)
     {
 
         Console.WriteLine(data.Count);
@@ -249,7 +241,8 @@ internal class PDFProvider<T> where T : TplusCustomer, IDisposable
                     page.ContentFromRightToLeft();
                     page.Margin(10);
                     page.Header()
-                        .Text("خروجی").FontFamily("B Lotus").Fallback()
+                        .Text("خروجی")
+                        .FontFamily(pdfConfigurations.FontFamily).Fallback()
                         .SemiBold();
 
                     page.Content().AlignCenter()
@@ -257,9 +250,6 @@ internal class PDFProvider<T> where T : TplusCustomer, IDisposable
                         {
                             table.ColumnsDefinition(cd =>
                             {
-                                //cd.RelativeColumn(200);
-                                //cd.RelativeColumn(200);
-                                //cd.RelativeColumn(200);
                                 for (int i = 0; i < pdfConfigurations.ColumnsCount; i++)
                                 {
                                     cd.RelativeColumn(pdfConfigurations.ColumnWidths);
@@ -268,9 +258,6 @@ internal class PDFProvider<T> where T : TplusCustomer, IDisposable
 
                             table.Header(tableHeader =>
                             {
-                                //tableHeader.Cell().Border(1).AlignCenter().Text("آیدی").FontFamily("B Lotus").Fallback();
-                                //tableHeader.Cell().Border(1).AlignCenter().Text("کد ملی").FontFamily("B Lotus").Fallback();
-                                //tableHeader.Cell().Border(1).AlignCenter().Text("نام").FontFamily("B Lotus").Fallback();
                                 foreach (var colunName in pdfConfigurations.ColumnNames)
                                 {
                                     tableHeader.Cell()
@@ -298,7 +285,13 @@ internal class PDFProvider<T> where T : TplusCustomer, IDisposable
                                 table.Cell()
                                     .Border(pdfConfigurations.TableBorders)
                                     .AlignCenter()
-                                    .Text(item.Name)
+                                    .Text(item.Storename)
+                                    .FontFamily(pdfConfigurations.FontFamily)
+                                    .Fallback();
+                                table.Cell()
+                                    .Border(pdfConfigurations.TableBorders)
+                                    .AlignCenter()
+                                    .Text(item.Nationalid)
                                     .FontFamily(pdfConfigurations.FontFamily)
                                     .Fallback();
                             }
@@ -310,7 +303,7 @@ internal class PDFProvider<T> where T : TplusCustomer, IDisposable
                             text.CurrentPageNumber();
                         });
                 });
-            }).GeneratePdf();
+            }).GeneratePdf(pdfConfigurations.PdfName);
         }
         catch (Exception e)
         {
